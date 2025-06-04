@@ -37,7 +37,7 @@ export default function Home() {
       </section>
 
 
-      <section className="w-full flex flex-col items-center justify-center">
+      <section className="w-full flex flex-col gap-5 items-center justify-center">
 
         <CTA />
         <CompanionList
