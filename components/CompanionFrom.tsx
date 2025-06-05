@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
+import { createCompanion } from '@/lib/companionAction'
+import { redirect } from 'next/navigation'
 
 // Schema definition
 const formSchema = z.object({
@@ -22,8 +24,11 @@ const formSchema = z.object({
   topic: z.string().min(1, { message: 'Topic is required' }),
   subject: z.string().min(1, { message: 'Subject is required' }),
   voice: z.string().min(1, { message: 'Voice is required' }),
+  style: z.string().min(1, { message: 'Style is required' }),
   duration: z.coerce.number().min(1, { message: 'Duration is required' }),
-})
+});
+
+
 
 type FormValues = z.infer<typeof formSchema>
 
@@ -35,13 +40,28 @@ const CompanionForm = () => {
       topic: "",
       subject: "",
       voice: "",
+      style: "",
       duration: 1,
+
     },
   })
 
-  const onSubmit = (values: FormValues) => {
-    console.log(values)
-  }
+  const onSubmit = async (values: FormValues) => {
+    try {
+      const companion = await createCompanion(values);
+
+      if (companion?.id) {
+        redirect(`/companions/${companion.id}`);
+      } else {
+        console.error("Companion created but missing ID");
+        redirect('/');
+      }
+    } catch (error) {
+      console.error("Failed to create a companion:", error);
+      redirect('/');
+    }
+  };
+
 
   return (
     <div className='flex items-center justify-center'>
@@ -110,7 +130,7 @@ const CompanionForm = () => {
 
           <FormField
             control={form.control}
-            name="voice"
+            name="style" // ✅ correct field name
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Style</FormLabel>
@@ -121,14 +141,15 @@ const CompanionForm = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="casual">Casual</SelectItem>
+                    <SelectItem value="formal">Formal</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
+
 
 
           <FormField
